@@ -1,0 +1,2 @@
+n = float(input("Enter number: "))
+print("Cube:", n ** 3)

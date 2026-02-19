@@ -1,0 +1,8 @@
+n=int(input())
+s=0
+temp=n
+while temp>0:
+ d=temp%10
+ s+=d**3
+ temp//=10
+print("Yes" if s==n else "No")

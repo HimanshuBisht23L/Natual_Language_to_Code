@@ -1,0 +1,5 @@
+arr = list(map(int, input("Enter elements: ").split()))
+if arr:
+    print("Average:", sum(arr) / len(arr))
+else:
+    print("Average: 0")

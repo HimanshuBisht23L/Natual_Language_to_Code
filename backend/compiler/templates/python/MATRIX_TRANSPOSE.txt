@@ -1,0 +1,6 @@
+r = int(input("Rows: "))
+c = int(input("Cols: "))
+print("Enter matrix:")
+m = [[int(input()) for _ in range(c)] for _ in range(r)]
+t = [[m[j][i] for j in range(r)] for i in range(c)]
+print("Transpose:", t)

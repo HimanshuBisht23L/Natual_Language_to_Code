@@ -1,0 +1,15 @@
+def binary_search():
+    arr = sorted(list(map(int,input("Enter elements: ").split())))
+    key=int(input("Enter key: "))
+    low,high=0,len(arr)-1
+    while low<=high:
+        mid=(low+high)//2
+        if arr[mid]==key:
+            print("Found at index",mid)
+            return
+        elif arr[mid]<key:
+            low=mid+1
+        else:
+            high=mid-1
+    print("Not found")
+binary_search()

@@ -1,0 +1,4 @@
+arr = list(map(int, input("Enter elements: ").split()))
+print("Array Elements:")
+for x in arr:
+    print(x, end=" ")

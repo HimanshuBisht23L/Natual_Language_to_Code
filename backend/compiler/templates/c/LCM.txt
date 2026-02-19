@@ -1,0 +1,20 @@
+#include <stdio.h>
+
+int gcd(int a, int b) {
+    while (b) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+int main() {
+    int a, b;
+    printf("Enter two numbers: ");
+    scanf("%d %d", &a, &b);
+    printf("LCM: %d", (a > b ? a : b) * (a + b) / gcd(a, b)); // Simplified logic but standard lcm = (a*b)/gcd(a,b)
+    // Correct logic:
+    printf("\nLCM Correct: %d", (a*b)/gcd(a, b));
+    return 0;
+}

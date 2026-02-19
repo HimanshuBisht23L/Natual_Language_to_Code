@@ -1,0 +1,3 @@
+base = float(input("Enter base: "))
+exp = float(input("Enter exponent: "))
+print("Result:", math.pow(base, exp))

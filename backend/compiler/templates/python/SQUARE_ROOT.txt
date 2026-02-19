@@ -1,0 +1,3 @@
+import math
+n = float(input("Enter number: "))
+print("Square Root:", math.sqrt(n))
