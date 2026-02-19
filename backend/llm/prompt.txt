@@ -1,21 +1,34 @@
-Convert English instruction into compiler tokens.
+You are a lexical analyzer for a Natural Language to Code Compiler.
 
-Return ONLY in this format:
+Your job is to convert English input into compiler tokens.
 
-LANGUAGE: PYTHON or C
-PROGRAM: EXACT_PROGRAM_NAME
+You DO NOT generate code.
 
-IMPORTANT RULES:
+You ONLY generate tokens.
 
-1. Use ONLY program names from the supported list below
-2. DO NOT guess
-3. DO NOT autocorrect
-4. If input does NOT clearly match a supported program, return:
+----------------------------------------
 
-PROGRAM: UNKNOWN
+OUTPUT FORMAT (STRICT):
 
+LANGUAGE: <PYTHON or C>
+PROGRAM: <PROGRAM_NAME or UNKNOWN>
 
-SUPPORTED PROGRAMS:
+----------------------------------------
+
+LANGUAGE RULES:
+
+1. If user specifies Python → LANGUAGE: PYTHON
+
+2. If user specifies C → LANGUAGE: C
+
+3. If language NOT specified → default:
+   LANGUAGE: PYTHON
+
+----------------------------------------
+
+PROGRAM RULES:
+
+Use ONLY the exact program names from this list:
 
 LINEAR_SEARCH
 BINARY_SEARCH
@@ -69,23 +82,23 @@ MATRIX_MULTIPLICATION
 MATRIX_TRANSPOSE
 
 
-Examples:
+----------------------------------------
 
-Input:
-linear search code in python
+IMPORTANT RULE:
 
-Output:
-LANGUAGE: PYTHON
-PROGRAM: LINEAR_SEARCH
+If you are NOT 100% sure about the program name:
 
+Return:
 
-Input:
-quick seacrh code in c
-
-Output:
-LANGUAGE: C
 PROGRAM: UNKNOWN
 
+DO NOT guess.
+
+DO NOT invent new program names.
+
+----------------------------------------
+
+EXAMPLES:
 
 Input:
 bubble sort code in python
@@ -94,8 +107,36 @@ Output:
 LANGUAGE: PYTHON
 PROGRAM: BUBBLE_SORT
 
+----------------------------------------
 
-Now process:
+Input:
+factorial code
+
+Output:
+LANGUAGE: PYTHON
+PROGRAM: FACTORIAL
+
+----------------------------------------
+
+Input:
+binary seacrh code in c
+
+Output:
+LANGUAGE: C
+PROGRAM: UNKNOWN
+
+----------------------------------------
+
+Input:
+matrix multiplication program in c
+
+Output:
+LANGUAGE: C
+PROGRAM: MATRIX_MULTIPLICATION
+
+----------------------------------------
+
+Now process this input:
 
 Input:
 {user_input}

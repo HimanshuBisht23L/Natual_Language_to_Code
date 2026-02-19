@@ -1,6 +1,10 @@
-import os
-from difflib import get_close_matches
 from backend.compiler.supported_programs import SUPPORTED_PROGRAMS
+
+from backend.utils.spell_helper import correct_program
+
+from backend.utils.errors import CompilerError
+
+import os
 
 
 def analyze(ast):
@@ -12,46 +16,45 @@ def analyze(ast):
 
     if not program:
 
-        raise Exception("No PROGRAM identified")
+        raise CompilerError(
 
-
-    # Auto-correct UNKNOWN
-
-    if program == "UNKNOWN":
-
-        raw = ast.properties.get("RAW_INPUT", "").upper()
-
-        suggestion = get_close_matches(
-
-            raw,
-
-            SUPPORTED_PROGRAMS,
-
-            n=1,
-
-            cutoff=0.6
+            "No program detected"
 
         )
 
+
+    if program == "UNKNOWN":
+
+        suggestion = correct_program(
+
+            ast.properties.get("RAW_INPUT"),
+
+            SUPPORTED_PROGRAMS
+
+        )
+
+
         if suggestion:
 
-            program = suggestion[0]
+            ast.properties["PROGRAM"] = suggestion
 
-            ast.properties["PROGRAM"] = program
+            program = suggestion
 
         else:
 
-            raise Exception("Program not recognized")
+            raise CompilerError(
 
+                "Program not recognized"
 
+            )
 
-    # Check template exists
 
     path = f"backend/compiler/templates/{language}/{program}.txt"
 
+
     if not os.path.exists(path):
 
-        raise Exception(
+        raise CompilerError(
 
             f"{program} not available in {language}"
 

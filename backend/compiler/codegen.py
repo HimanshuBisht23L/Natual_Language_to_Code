@@ -1,4 +1,4 @@
-import os
+from backend.utils.template_loader import load_template
 
 
 def generate_code(ir):
@@ -7,18 +7,11 @@ def generate_code(ir):
 
     program = ir["properties"].get("PROGRAM")
 
-    path = f"backend/compiler/templates/{language}/{program}.txt"
 
+    return load_template(
 
-    if not os.path.exists(path):
+        language,
 
-        raise Exception(
+        program
 
-            f"Template for {program} not found"
-
-        )
-
-
-    with open(path, "r") as f:
-
-        return f.read()
+    )
