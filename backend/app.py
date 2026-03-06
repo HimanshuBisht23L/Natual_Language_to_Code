@@ -10,7 +10,7 @@ from backend.compiler.ir_generator import generate_ir
 from backend.compiler.codegen import generate_code
 
 # ✅ NEW IMPORT
-from backend.utils.errors import CompilerError
+from backend.compiler.utils.errors import CompilerError
 
 
 app = Flask(__name__)

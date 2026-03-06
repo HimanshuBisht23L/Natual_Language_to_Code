@@ -1,6 +1,6 @@
 import os
 
-from backend.utils.errors import CompilerError
+from backend.compiler.utils.errors import CompilerError
 
 
 def load_template(language, program):
