@@ -5,7 +5,10 @@ from backend.compiler.utils.errors import CompilerError
 
 def load_template(language, program):
 
-    path = f"backend/compiler/templates/{language}/{program}.txt"
+    # Resolve absolute path relative to this utility's file position
+    # __file__ is inside backend/compiler/utils/
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    path = os.path.join(base_dir, "compiler", "templates", language, f"{program}.txt")
 
 
     if not os.path.exists(path):
@@ -20,3 +23,4 @@ def load_template(language, program):
     with open(path, "r") as f:
 
         return f.read()
+

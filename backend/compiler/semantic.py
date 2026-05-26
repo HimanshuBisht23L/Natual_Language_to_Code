@@ -28,7 +28,10 @@ def analyze(ast):
                 "Program not recognized"
             )
 
-    path = f"backend/compiler/templates/{language}/{program}.txt"
+    # Resolve absolute path relative to this file's position
+    # __file__ is inside backend/compiler/
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(base_dir, "compiler", "templates", language, f"{program}.txt")
 
     if not os.path.exists(path):
         raise CompilerError(

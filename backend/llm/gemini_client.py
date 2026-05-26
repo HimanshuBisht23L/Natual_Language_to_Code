@@ -1,3 +1,4 @@
+import os
 import google.generativeai as genai
 from backend.config import GEMINI_API_KEY
 
@@ -9,8 +10,13 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 
 def load_prompt():
 
-    with open("backend/llm/prompt.txt", "r") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base_dir, "prompt.txt")
+
+    with open(path, "r") as f:
+
         return f.read()
+
 
 
 def get_tokens(user_input):

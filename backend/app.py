@@ -1,9 +1,15 @@
+import sys
+import os
+
+# Add parent directory to sys.path to support running app.py directly
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from backend.llm.gemini_client import get_tokens
 
-from backend.compiler.lexer import tokenize
+from backend.compiler.lexer import tokenize, tokenize_code
 from backend.compiler.parser import parse
 from backend.compiler.semantic import analyze
 from backend.compiler.ir_generator import generate_ir
@@ -58,6 +64,10 @@ def generate():
         code = generate_code(ir)
 
 
+        # Extract lexical tokens from generated code
+        lexical_tokens = tokenize_code(code, ast.language)
+
+
         return jsonify({
 
             "success": True,
@@ -66,9 +76,16 @@ def generate():
 
             "program": ast.properties.get("PROGRAM"),
 
-            "code": code
+            "code": code,
+
+            "tokens": tokens,
+
+            "lexical_tokens": lexical_tokens,
+
+            "three_address_code": ir.get("three_address_code")
 
         })
+
 
 
     # ✅ Compiler errors handled cleanly
