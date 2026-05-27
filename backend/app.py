@@ -9,13 +9,12 @@ from flask_cors import CORS
 
 from backend.llm.gemini_client import get_tokens
 
-from backend.compiler.lexer import tokenize, tokenize_code
+from backend.compiler.lexer import tokenize, tokenize_code, tokenize_english
 from backend.compiler.parser import parse
 from backend.compiler.semantic import analyze
 from backend.compiler.ir_generator import generate_ir
 from backend.compiler.codegen import generate_code
 
-# ✅ NEW IMPORT
 from backend.compiler.utils.errors import CompilerError
 
 
@@ -48,8 +47,15 @@ def generate():
         tokens = tokenize(token_text)
 
 
+        # Save original parsed program for dynamic 3AC branch mapping
+        original_program = tokens.get("PROGRAM", "UNKNOWN")
+
+
         # Parser (default Python handled here)
         ast = parse(tokens, user_input)
+
+
+        ast.properties["ORIGINAL_PROGRAM"] = original_program
 
 
         # Semantic analysis
@@ -67,6 +73,8 @@ def generate():
         # Extract lexical tokens from generated code
         lexical_tokens = tokenize_code(code, ast.language)
 
+        # Extract lexical tokens from input English prompt
+        english_tokens = tokenize_english(user_input)
 
         return jsonify({
 
@@ -82,7 +90,11 @@ def generate():
 
             "lexical_tokens": lexical_tokens,
 
-            "three_address_code": ir.get("three_address_code")
+            "three_address_code": ir.get("three_address_code"),
+
+            "english_tokens": english_tokens,
+
+            "english_3ac": ir.get("english_3ac")
 
         })
 

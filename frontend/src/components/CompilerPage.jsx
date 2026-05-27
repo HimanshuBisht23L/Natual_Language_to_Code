@@ -10,6 +10,7 @@ function CompilerPage() {
   const [tokenSearch, setTokenSearch] = useState("")
   const [copiedCode, setCopiedCode] = useState(false)
   const [copied3ac, setCopied3ac] = useState(false)
+  const [copiedEnglish3ac, setCopiedEnglish3ac] = useState(false)
 
   const examples = [
     { label: "Prime Check (Python)", prompt: "Write a python program to check if a number is prime" },
@@ -66,9 +67,16 @@ function CompilerPage() {
     setTimeout(() => setCopied3ac(false), 2000)
   }
 
+  const handleCopyEnglish3ac = () => {
+    if (!response || !response.english_3ac) return
+    navigator.clipboard.writeText(response.english_3ac)
+    setCopiedEnglish3ac(true)
+    setTimeout(() => setCopiedEnglish3ac(false), 2000)
+  }
+
   const getTokenTypeBadge = (type) => {
     const base = "px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider "
-    switch (type) {
+    switch (type.toUpperCase()) {
       case 'KEYWORD':
         return base + "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
       case 'IDENTIFIER':
@@ -83,12 +91,27 @@ function CompilerPage() {
         return base + "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
       case 'PREPROCESSOR':
         return base + "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+      case 'LANGUAGE':
+        return base + "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
+      case 'ALGORITHM':
+        return base + "bg-pink-500/15 text-pink-300 border border-pink-500/30"
+      case 'PUNCTUATION':
+        return base + "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+      case 'WORD':
+        return base + "bg-slate-500/10 text-slate-300 border border-slate-700/50"
       default:
         return base + "bg-slate-500/10 text-slate-400 border border-slate-500/20"
     }
   }
 
-  const filteredTokens = response && response.lexical_tokens
+  const filteredEnglishTokens = response && response.english_tokens
+    ? response.english_tokens.filter(t => 
+        t.type.toLowerCase().includes(tokenSearch.toLowerCase()) || 
+        t.value.toLowerCase().includes(tokenSearch.toLowerCase())
+      )
+    : []
+
+  const filteredCodeTokens = response && response.lexical_tokens
     ? response.lexical_tokens.filter(t => 
         t.type.toLowerCase().includes(tokenSearch.toLowerCase()) || 
         t.value.toLowerCase().includes(tokenSearch.toLowerCase())
@@ -234,7 +257,7 @@ function CompilerPage() {
                       : "bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-900/30"
                   }`}
                 >
-                  Lexical analysis ({response.lexical_tokens ? response.lexical_tokens.length : 0})
+                  Lexical analysis ({(response.english_tokens ? response.english_tokens.length : 0) + (response.lexical_tokens ? response.lexical_tokens.length : 0)})
                 </button>
                 <button
                   onClick={() => setActiveTab("3ac")}
@@ -284,11 +307,14 @@ function CompilerPage() {
                 )}
 
                 {activeTab === "lexer" && (
-                  <div className="space-y-4 flex-grow flex flex-col">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Scanned Token Stream Table
-                      </span>
+                  <div className="space-y-8 flex-grow flex flex-col bg-slate-900">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">
+                          Multi-Phase Lexical Analysis
+                        </span>
+                        <p className="text-xs text-slate-400">Track and compare tokens generated across multiple phases of the compiler pipeline.</p>
+                      </div>
                       <input
                         type="text"
                         className="px-3 py-1.5 w-full sm:w-48 rounded-lg bg-slate-950 border border-slate-800 focus:outline-none focus:border-indigo-500 text-xs font-medium placeholder-slate-600 text-slate-200"
@@ -298,72 +324,180 @@ function CompilerPage() {
                       />
                     </div>
 
-                    <div className="flex-grow overflow-auto border border-slate-950 bg-slate-950 rounded-2xl max-h-[360px]">
-                      <table className="w-full text-left border-collapse font-sans text-xs">
-                        <thead className="sticky top-0 bg-slate-950 border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
-                          <tr>
-                            <th className="px-5 py-3.5">Line</th>
-                            <th className="px-5 py-3.5">Token Class</th>
-                            <th className="px-5 py-3.5">Lexeme Value</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-900 font-mono text-slate-300">
-                          {filteredTokens.length > 0 ? (
-                            filteredTokens.map((tok, idx) => (
-                              <tr key={idx} className="hover:bg-slate-900/35 transition-colors">
-                                <td className="px-5 py-3 text-slate-500">{tok.line}</td>
-                                <td className="px-5 py-3">
-                                  <span className={getTokenTypeBadge(tok.type)}>
-                                    {tok.type}
-                                  </span>
-                                </td>
-                                <td className="px-5 py-3 font-semibold text-indigo-100">{tok.value}</td>
+                    <div className="flex flex-col space-y-8">
+                      <div className="flex flex-col space-y-4 bg-slate-950/40 p-6 rounded-2xl border border-slate-800/80 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                            <span className="text-sm font-extrabold text-slate-200 uppercase tracking-wider">
+                              Phase 1: Input English Prompt Lexer
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                            {filteredEnglishTokens.length} Tokens
+                          </span>
+                        </div>
+                        <div className="overflow-auto border border-slate-950 bg-slate-950 rounded-xl max-h-[350px]">
+                          <table className="w-full text-left border-collapse font-sans text-xs">
+                            <thead className="sticky top-0 bg-slate-950 border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+                              <tr>
+                                <th className="px-5 py-3.5">Line</th>
+                                <th className="px-5 py-3.5">Token Class</th>
+                                <th className="px-5 py-3.5">Lexeme Value</th>
                               </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan={3} className="px-5 py-8 text-center text-slate-600 font-medium">
-                                No matching tokens found.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-900 font-mono text-slate-300">
+                              {filteredEnglishTokens.length > 0 ? (
+                                filteredEnglishTokens.map((tok, idx) => (
+                                  <tr key={idx} className="hover:bg-slate-900/35 transition-colors">
+                                    <td className="px-5 py-3 text-slate-500">{tok.line}</td>
+                                    <td className="px-5 py-3">
+                                      <span className={getTokenTypeBadge(tok.type)}>
+                                        {tok.type}
+                                      </span>
+                                    </td>
+                                    <td className="px-5 py-3 font-semibold text-indigo-100">{tok.value}</td>
+                                  </tr>
+                                ))
+                              ) : (
+                                <tr>
+                                  <td colSpan={3} className="px-5 py-8 text-center text-slate-600 font-medium">
+                                    No tokens found.
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col space-y-4 bg-slate-950/40 p-6 rounded-2xl border border-slate-800/80 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span className="text-sm font-extrabold text-slate-200 uppercase tracking-wider">
+                              Phase 6: Generated Code Lexer ({response.language})
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            {filteredCodeTokens.length} Tokens
+                          </span>
+                        </div>
+                        <div className="overflow-auto border border-slate-950 bg-slate-950 rounded-xl max-h-[350px]">
+                          <table className="w-full text-left border-collapse font-sans text-xs">
+                            <thead className="sticky top-0 bg-slate-950 border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+                              <tr>
+                                <th className="px-5 py-3.5">Line</th>
+                                <th className="px-5 py-3.5">Token Class</th>
+                                <th className="px-5 py-3.5">Lexeme Value</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-900 font-mono text-slate-300">
+                              {filteredCodeTokens.length > 0 ? (
+                                filteredCodeTokens.map((tok, idx) => (
+                                  <tr key={idx} className="hover:bg-slate-900/35 transition-colors">
+                                    <td className="px-5 py-3 text-slate-500">{tok.line}</td>
+                                    <td className="px-5 py-3">
+                                      <span className={getTokenTypeBadge(tok.type)}>
+                                        {tok.type}
+                                      </span>
+                                    </td>
+                                    <td className="px-5 py-3 font-semibold text-emerald-100">{tok.value}</td>
+                                  </tr>
+                                ))
+                              ) : (
+                                <tr>
+                                  <td colSpan={3} className="px-5 py-8 text-center text-slate-600 font-medium">
+                                    No tokens found.
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "3ac" && (
-                  <div className="space-y-4 flex-grow flex flex-col">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Synthesized Three-Address Code (3AC)
+                  <div className="space-y-8 flex-grow flex flex-col bg-slate-900">
+                    <div className="flex flex-col gap-1 pb-4 border-b border-slate-800">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                        Intermediate Representation & Code Generation Stages
                       </span>
-                      <button
-                        onClick={handleCopy3ac}
-                        className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1.5 active:scale-95 transition-all"
-                      >
-                        {copied3ac ? (
-                          <>
-                            <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                            </svg>
-                            Copy 3AC
-                          </>
-                        )}
-                      </button>
+                      <p className="text-xs text-slate-400">Review register allocations mapping the Natural Language compile phase and Compiled program logic.</p>
                     </div>
 
-                    <pre className="flex-grow p-5 bg-slate-950 rounded-2xl border border-slate-950 font-mono text-sm leading-relaxed overflow-auto text-indigo-300 select-all max-h-[400px]">
-                      <code>{response.three_address_code}</code>
-                    </pre>
+                    <div className="flex flex-col space-y-8">
+                      <div className="flex flex-col space-y-4 bg-slate-950/40 p-6 rounded-2xl border border-slate-800/80 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                            <span className="text-sm font-extrabold text-slate-200 uppercase tracking-wider">
+                              Phase 4: Prompt Translation Pipeline (3AC)
+                            </span>
+                          </div>
+                          <button
+                            onClick={handleCopyEnglish3ac}
+                            className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1.5 active:scale-95 transition-all"
+                          >
+                            {copiedEnglish3ac ? (
+                              <>
+                                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2" />
+                                </svg>
+                                Copy Pipeline 3AC
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <pre className="p-5 bg-slate-950 rounded-xl border border-slate-950 font-mono text-sm leading-relaxed overflow-auto text-indigo-300 select-all max-h-[350px]">
+                          <code>{response.english_3ac}</code>
+                        </pre>
+                      </div>
+
+                      <div className="flex flex-col space-y-4 bg-slate-950/40 p-6 rounded-2xl border border-slate-800/80 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span className="text-sm font-extrabold text-slate-200 uppercase tracking-wider">
+                              Phase 5: Compiled Algorithm Logic (3AC)
+                            </span>
+                          </div>
+                          <button
+                            onClick={handleCopy3ac}
+                            className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1.5 active:scale-95 transition-all"
+                          >
+                            {copied3ac ? (
+                              <>
+                                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2" />
+                                </svg>
+                                Copy Algorithm 3AC
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <pre className="p-5 bg-slate-950 rounded-xl border border-slate-950 font-mono text-sm leading-relaxed overflow-auto text-emerald-300 select-all max-h-[350px]">
+                          <code>{response.three_address_code}</code>
+                        </pre>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

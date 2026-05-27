@@ -17,6 +17,32 @@ def tokenize(text):
     return tokens
 
 
+def tokenize_english(text):
+    patterns = [
+        ('KEYWORD', r'\b(write|program|create|generate|make|code|implement|in|to|for|check|find|calculate|using|with|of|if|whether|is|a|an|the)\b'),
+        ('LANGUAGE', r'\b(python|c|cpp|c\+\+|java|javascript|html|css)\b'),
+        ('ALGORITHM', r'\b(prime|search|sort|binary|bubble|linear|factorial|fibonacci|gcd|lcm|palindrome|matrix|multiplication|transpose|sum|average|even|odd|leap|year|reverse|string|array|list|stack|queue|tree|graph)\b'),
+        ('NUMBER', r'\b\d+\b'),
+        ('PUNCTUATION', r'[,.?!\(\):\'"]'),
+        ('WORD', r'\b[a-zA-Z_][a-zA-Z0-9_]*\b'),
+        ('SPACE', r'\s+'),
+    ]
+    tok_regex = '|'.join(f'(?P<{name}>{pattern})' for name, pattern in patterns)
+    tokens = []
+    line_num = 1
+    
+    for match in re.finditer(tok_regex, text, re.IGNORECASE):
+        kind = match.lastgroup
+        value = match.group()
+        if kind == 'SPACE':
+            continue
+        tokens.append({
+            'line': line_num,
+            'type': kind,
+            'value': value
+        })
+    return tokens
+
 
 def tokenize_code(code, language):
 

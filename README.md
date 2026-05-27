@@ -200,9 +200,10 @@ When you send a compilation query to LingoComp, the compiler processes it and yi
 
 ## 🎓 Compiler Phases Explained (PBL Perspective)
 
-1. **Lexical Analysis (Stage 1 - Lexer):** Matches incoming Gemini text configurations to build strict dictionaries of compiler inputs (`LANGUAGE` and `PROGRAM` name).
-2. **Syntax Analysis (Stage 2 - Parser):** Maps parsed parameters to dynamic Program Nodes (`ProgramNode`) in the Abstract Syntax Tree (AST), checking target structures.
-3. **Semantic Analysis (Stage 3 - Semantic):** Ensures logical validity. Checks if the requested algorithm exists within our 53 supported modules. Runs a Sequence Similarity correction algorithm to correct slight spell check typos.
-4. **Intermediate Code Generation (Stage 4 - 3AC):** Transforms abstract logic into **Three-Address Code (3AC)**. 3AC serves as an educational register-based assembly-style view using instructions containing at most three memory addresses.
-5. **Code Generation (Stage 5 - Codegen):** Compiles high-level templates from safe relative-path files to build correct executable source scripts in the target language (C/Python).
-6. **Detailed Source Code Scan (Stage 6 - High-Fidelity Lexer):** Takes the generated program and runs regular expression rules to produce a detailed list of token classes complete with actual source line numbers.
+1. **Phase 1: Input English Prompt Lexer:** Performs lexical analysis on the user's natural language input string. A custom regex lexer matches token classes such as keywords (`write`, `code`), language indicators (`python`, `c`), algorithms (`prime`, `binary search`), separators, and identifiers.
+2. **Phase 2: Syntax Analysis (Parser):** Maps extracted tokens into structured Program Nodes (`ProgramNode`) in an Abstract Syntax Tree (AST), checking language bounds.
+3. **Phase 3: Semantic Analysis & Auto-Correction:** Checks logical bounds. Validates that the requested program is part of our 53 supported modules. If there are typos, it invokes a sequence-similarity suggestion engine to retrieve candidate programs.
+4. **Phase 4: Intermediate Code Generation (Prompt Translation 3AC):** Synthesizes register-based Three-Address Code representing the compiler's own execution phases (e.g. `SCAN()`, `PARSE_TOKENS()`, `LOAD_CODE_TEMPLATE()`, `MAP_VARIABLES()`) in intermediate format.
+5. **Phase 5: Intermediate Code Generation (Algorithm Logic 3AC):** Attaches register-based Three-Address Code modeling the core execution steps (loop jumps, temp register assignments, and index pointer calculations) of the C or Python program itself.
+6. **Phase 6: Code Generation:** Pulls precompiled targets from relative-path file templates to output production-ready executable Python/C code.
+7. **Phase 7: Detailed High-Fidelity Code Lexer:** Performs deep regular expression scans on the generated source code to extract a complete table of token streams (Keywords, Identifiers, Operators, Literals, Comments) for validation.
